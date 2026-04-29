@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Playfair_Display, Noto_Sans_Arabic } from 'next/font/google'
+import { Playfair_Display, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
@@ -9,15 +9,15 @@ const playfair = Playfair_Display({
   display: 'swap',
 });
 
-const notoArabic = Noto_Sans_Arabic({ 
-  subsets: ["arabic"],
-  variable: '--font-arabic',
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: '--font-inter',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'مكاننا السري',
-  description: 'مكان خاص لقلبين',
+  title: 'Our Secret Place',
+  description: 'A private space for two hearts',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -48,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={`${playfair.variable} ${notoArabic.variable} bg-background`}>
+    <html lang="en" className={`${playfair.variable} ${inter.variable} bg-background`}>
       <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

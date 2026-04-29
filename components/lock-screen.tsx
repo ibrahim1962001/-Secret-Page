@@ -3,114 +3,117 @@
 import { useState, useCallback } from 'react'
 import { FloatingHearts } from './floating-hearts'
 import { setUnlocked } from '@/lib/store'
-import { Heart, Sparkles } from 'lucide-react'
 
 interface LockScreenProps {
   onUnlock: () => void
-  correctPassword?: string
 }
 
-export function LockScreen({ onUnlock, correctPassword = 'love' }: LockScreenProps) {
-  const [password, setPassword] = useState('')
+const CORRECT_PIN = '1234'
+
+export function LockScreen({ onUnlock }: LockScreenProps) {
+  const [pin, setPin] = useState<string[]>([])
   const [isShaking, setIsShaking] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [isUnlocking, setIsUnlocking] = useState(false)
 
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault()
-    if (isShaking || isUnlocking) return
+  const handlePinClick = useCallback((digit: string) => {
+    if (pin.length >= 4 || isShaking || isUnlocking) return
 
-    if (password.toLowerCase() === correctPassword.toLowerCase()) {
-      setIsUnlocking(true)
-      setUnlocked(true)
-      setTimeout(() => {
-        onUnlock()
-      }, 800)
-    } else {
-      setIsShaking(true)
-      setErrorMessage('مش ليك يا حبيبي')
-      setTimeout(() => {
-        setIsShaking(false)
-        setPassword('')
-      }, 600)
+    const newPin = [...pin, digit]
+    setPin(newPin)
+    setErrorMessage('')
+
+    if (newPin.length === 4) {
+      const enteredPin = newPin.join('')
+      if (enteredPin === CORRECT_PIN) {
+        setIsUnlocking(true)
+        setUnlocked(true)
+        setTimeout(() => {
+          onUnlock()
+        }, 500)
+      } else {
+        setIsShaking(true)
+        setErrorMessage('Not for you 🤍')
+        setTimeout(() => {
+          setIsShaking(false)
+          setPin([])
+        }, 500)
+      }
     }
-  }, [password, correctPassword, isShaking, isUnlocking, onUnlock])
+  }, [pin, isShaking, isUnlocking, onUnlock])
+
+  const handleDelete = useCallback(() => {
+    if (pin.length > 0 && !isShaking && !isUnlocking) {
+      setPin(pin.slice(0, -1))
+      setErrorMessage('')
+    }
+  }, [pin, isShaking, isUnlocking])
 
   return (
-    <div className="fixed inset-0 bg-background flex items-center justify-center overflow-hidden">
-      <FloatingHearts count={15} colorful />
+    <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
+      <FloatingHearts count={20} />
       
-      {/* Ambient background glow */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[120px]" />
-      </div>
-      
-      {/* Content */}
-      <div className={`relative z-10 w-full max-w-md mx-6 transition-all duration-700 ${isUnlocking ? 'scale-95 opacity-0 blur-sm' : ''}`}>
-        <div className="glass-strong rounded-3xl p-10 md:p-12">
-          {/* Icon */}
-          <div className="flex justify-center mb-8">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center pulse-glow">
-                <Heart className="w-10 h-10 text-primary fill-primary/30" />
-              </div>
-              <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-accent" />
-            </div>
-          </div>
+      <div 
+        className={`glass rounded-3xl p-8 md:p-12 w-[90%] max-w-sm flex flex-col items-center gap-8 fade-in ${isShaking ? 'shake' : ''} ${isUnlocking ? 'opacity-0 scale-95 transition-all duration-500' : ''}`}
+      >
+        <div className="text-center">
+          <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-2 text-balance">
+            Our Secret Place 🤍
+          </h1>
+          <p className="text-muted-foreground text-sm">Enter the code to continue</p>
+        </div>
 
-          {/* Title */}
-          <div className="text-center mb-10">
-            <h1 className="text-4xl font-serif gradient-text mb-3 text-balance">
-              مكاننا السري
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              مكان خاص لقلبين بيحبوا بعض
-            </p>
-          </div>
+        {/* PIN Circles */}
+        <div className="flex gap-4">
+          {[0, 1, 2, 3].map((index) => (
+            <div
+              key={index}
+              className={`w-4 h-4 rounded-full border-2 border-primary transition-all duration-300 ${
+                pin.length > index 
+                  ? 'bg-primary scale-110' 
+                  : 'bg-transparent'
+              }`}
+            />
+          ))}
+        </div>
 
-          {/* Password Input */}
-          <form onSubmit={handleSubmit} className={`${isShaking ? 'shake' : ''}`}>
-            <div className="mb-6">
-              <label className="block text-muted-foreground text-xs mb-3 text-center tracking-wide uppercase">
-                كلمة السر
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value)
-                  setErrorMessage('')
-                }}
-                placeholder="..."
-                className="w-full bg-muted/50 border border-border rounded-2xl px-6 py-4 text-foreground text-center placeholder:text-muted-foreground/30 focus:outline-none focus:border-primary/50 focus:bg-muted/70 transition-all text-lg tracking-widest"
-                dir="rtl"
-                autoFocus
-              />
-            </div>
+        {/* Error Message */}
+        <div className="h-6">
+          {errorMessage && (
+            <p className="text-primary text-sm fade-in">{errorMessage}</p>
+          )}
+        </div>
 
-            {/* Error Message */}
-            <div className="h-6 mb-6 text-center">
-              {errorMessage && (
-                <p className="text-destructive text-sm">{errorMessage}</p>
-              )}
-            </div>
-
-            {/* Unlock Button */}
+        {/* Number Pad */}
+        <div className="grid grid-cols-3 gap-4">
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map((digit, index) => (
             <button
-              type="submit"
-              disabled={isUnlocking}
-              className="w-full bg-gradient-to-r from-primary to-rose-dark hover:from-primary/90 hover:to-rose-dark/90 text-primary-foreground font-medium py-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 card-hover"
+              key={index}
+              onClick={() => {
+                if (digit === 'del') {
+                  handleDelete()
+                } else if (digit !== '') {
+                  handlePinClick(digit)
+                }
+              }}
+              disabled={digit === '' || isShaking || isUnlocking}
+              className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-medium transition-all duration-200 ${
+                digit === '' 
+                  ? 'invisible' 
+                  : digit === 'del'
+                  ? 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  : 'glass hover:bg-primary/20 hover:border-primary text-foreground active:scale-95'
+              }`}
             >
-              <Heart className="w-5 h-5" />
-              <span>ادخل</span>
+              {digit === 'del' ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z" />
+                </svg>
+              ) : (
+                digit
+              )}
             </button>
-          </form>
-
-          {/* Hint */}
-          <p className="text-center text-muted-foreground/40 text-xs mt-8">
-            تلميح: الكلمة اللي بتوصف احساسنا
-          </p>
+          ))}
         </div>
       </div>
     </div>

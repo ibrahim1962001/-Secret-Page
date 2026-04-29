@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, X, Clock, Sparkles } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import type { Milestone } from '@/lib/store'
 
 interface TimelineProps {
@@ -35,161 +35,142 @@ export function Timeline({ milestones, onAddMilestone }: TimelineProps) {
   }
 
   return (
-    <div className="glass rounded-3xl p-8 md:p-10">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-4">
-          <Clock className="w-7 h-7 text-primary" />
-        </div>
-        <h2 className="text-3xl md:text-4xl font-serif gradient-text mb-3">حكايتنا</h2>
-        <p className="text-muted-foreground text-sm">كل لحظة مهمة في رحلتنا</p>
-      </div>
-
-      {/* Timeline */}
-      <div className="relative">
-        {/* Vertical Line */}
-        <div className="absolute right-6 top-0 bottom-0 w-px">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary via-primary/30 to-transparent" />
+    <section id="timeline" className="min-h-screen px-4 py-20">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-12 fade-in">
+          <h2 className="font-serif text-3xl md:text-5xl text-foreground mb-4">Our Timeline</h2>
+          <p className="text-muted-foreground">Every moment that matters</p>
         </div>
 
-        {sortedMilestones.map((milestone, index) => (
-          <div 
-            key={milestone.id} 
-            className="relative flex gap-6 mb-10 last:mb-0 fade-in" 
-            style={{ animationDelay: `${index * 0.15}s` }}
-          >
-            {/* Dot */}
-            <div className="relative z-10 shrink-0">
-              <div className="w-12 h-12 rounded-full bg-background border-2 border-primary/50 flex items-center justify-center text-xl">
-                {milestone.emoji || '💕'}
-              </div>
-              {/* Glow effect */}
-              <div className="absolute inset-0 rounded-full bg-primary/20 blur-md -z-10" />
-            </div>
+        {/* Timeline */}
+        <div className="relative">
+          {/* Vertical Line */}
+          <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-primary/30 transform md:-translate-x-px" />
 
-            {/* Card */}
-            <div className="flex-1 group">
-              <div className="bg-muted/30 hover:bg-muted/50 rounded-2xl p-6 transition-all duration-300 card-hover border border-transparent hover:border-primary/20">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-2xl">{milestone.emoji || '💕'}</span>
-                  <span className="text-xs text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
-                    {new Date(milestone.date).toLocaleDateString('ar-EG', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </span>
+          {sortedMilestones.map((milestone, index) => (
+            <div
+              key={milestone.id}
+              className={`relative flex items-start gap-6 mb-8 fade-in ${
+                index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
+              }`}
+              style={{ animationDelay: `${index * 0.15}s` }}
+            >
+              {/* Dot */}
+              <div className="absolute left-6 md:left-1/2 w-3 h-3 bg-primary rounded-full transform -translate-x-1/2 mt-6 z-10 pulse-glow" />
+
+              {/* Card */}
+              <div className={`ml-14 md:ml-0 md:w-[calc(50%-2rem)] ${
+                index % 2 === 0 ? 'md:mr-auto md:pr-8' : 'md:ml-auto md:pl-8'
+              }`}>
+                <div className="glass rounded-2xl p-6 hover:border-primary/50 transition-all duration-300">
+                  <div className="flex items-start justify-between mb-3">
+                    <span className="text-2xl">{milestone.emoji || '💕'}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(milestone.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-xl text-foreground mb-2">{milestone.title}</h3>
+                  <p className="text-muted-foreground text-sm">{milestone.description}</p>
                 </div>
-                <h3 className="text-lg font-medium text-foreground mb-2 group-hover:text-primary transition-colors">
-                  {milestone.title}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {milestone.description}
-                </p>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        {/* Empty state */}
-        {sortedMilestones.length === 0 && (
-          <div className="text-center py-12">
-            <Sparkles className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-muted-foreground">ابدأ بإضافة أول ذكرى في حكايتكم</p>
+          {/* Add Milestone Button */}
+          <div className="relative flex items-center justify-center mt-8 fade-in">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="glass rounded-full px-6 py-3 flex items-center gap-2 text-primary hover:bg-primary/10 transition-all duration-300"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Milestone</span>
+            </button>
           </div>
-        )}
-
-        {/* Add Milestone Button */}
-        <div className="flex justify-center mt-10">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-muted/30 hover:bg-muted/50 border border-border hover:border-primary/30 rounded-2xl px-8 py-4 flex items-center gap-3 text-muted-foreground hover:text-primary transition-all duration-300"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-medium">إضافة ذكرى جديدة</span>
-          </button>
         </div>
       </div>
 
       {/* Modal */}
       {isModalOpen && (
         <div 
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" 
+          className="fixed inset-0 bg-background/80 backdrop-blur-lg z-50 flex items-center justify-center p-4 fade-in"
           onClick={() => setIsModalOpen(false)}
         >
-          <div
-            className="glass-strong rounded-3xl p-8 w-full max-w-md"
+          <div 
+            className="glass rounded-3xl p-6 md:p-8 w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
-            dir="rtl"
           >
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-serif gradient-text">ذكرى جديدة</h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-serif text-2xl text-foreground">New Milestone</h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="w-10 h-10 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>
-                <label className="block text-xs text-muted-foreground mb-2 uppercase tracking-wide">التاريخ</label>
+                <label className="block text-sm text-muted-foreground mb-2">Date</label>
                 <input
                   type="date"
                   value={newMilestone.date}
                   onChange={(e) => setNewMilestone({ ...newMilestone, date: e.target.value })}
-                  className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3.5 text-foreground focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full glass rounded-xl px-4 py-3 text-foreground bg-transparent focus:outline-none focus:border-primary transition-colors"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-muted-foreground mb-2 uppercase tracking-wide">العنوان</label>
+                <label className="block text-sm text-muted-foreground mb-2">Title</label>
                 <input
                   type="text"
                   value={newMilestone.title}
                   onChange={(e) => setNewMilestone({ ...newMilestone, title: e.target.value })}
-                  placeholder="مثلا: أول يوم اتقابلنا"
-                  className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3.5 text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50 transition-colors"
+                  placeholder="e.g., Our First Kiss"
+                  className="w-full glass rounded-xl px-4 py-3 text-foreground bg-transparent placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-muted-foreground mb-2 uppercase tracking-wide">الوصف</label>
+                <label className="block text-sm text-muted-foreground mb-2">Description</label>
                 <textarea
                   value={newMilestone.description}
                   onChange={(e) => setNewMilestone({ ...newMilestone, description: e.target.value })}
-                  placeholder="احكي الحكاية..."
+                  placeholder="Tell the story..."
                   rows={3}
-                  className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3.5 text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                  className="w-full glass rounded-xl px-4 py-3 text-foreground bg-transparent placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors resize-none"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-muted-foreground mb-2 uppercase tracking-wide">إيموجي (اختياري)</label>
+                <label className="block text-sm text-muted-foreground mb-2">Emoji (optional)</label>
                 <input
                   type="text"
                   value={newMilestone.emoji}
                   onChange={(e) => setNewMilestone({ ...newMilestone, emoji: e.target.value })}
-                  placeholder="مثلا: 💕"
+                  placeholder="e.g., 💋"
                   maxLength={2}
-                  className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3.5 text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50 transition-colors text-center text-2xl"
+                  className="w-full glass rounded-xl px-4 py-3 text-foreground bg-transparent placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-primary to-rose-dark text-primary-foreground py-4 rounded-xl font-medium hover:opacity-90 transition-opacity mt-2"
+                className="mt-4 w-full bg-primary text-primary-foreground rounded-xl px-6 py-3 font-medium hover:opacity-90 transition-opacity"
               >
-                إضافة للحكاية
+                Add to Timeline
               </button>
             </form>
           </div>
         </div>
       )}
-    </div>
+    </section>
   )
 }
