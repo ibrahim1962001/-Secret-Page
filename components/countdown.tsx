@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Heart, Sparkles } from 'lucide-react'
 
 interface CountdownProps {
   anniversaryDate: string
@@ -81,51 +82,123 @@ export function Countdown({ anniversaryDate, coupleName1, coupleName2 }: Countdo
     return () => clearInterval(interval)
   }, [anniversaryDate])
 
+  const getArabicPlural = (value: number, unit: string) => {
+    if (unit === 'سنة') {
+      if (value === 1) return 'سنة'
+      if (value === 2) return 'سنتين'
+      if (value >= 3 && value <= 10) return 'سنوات'
+      return 'سنة'
+    }
+    if (unit === 'شهر') {
+      if (value === 1) return 'شهر'
+      if (value === 2) return 'شهرين'
+      if (value >= 3 && value <= 10) return 'شهور'
+      return 'شهر'
+    }
+    if (unit === 'يوم') {
+      if (value === 1) return 'يوم'
+      if (value === 2) return 'يومين'
+      if (value >= 3 && value <= 10) return 'أيام'
+      return 'يوم'
+    }
+    if (unit === 'ساعة') {
+      if (value === 1) return 'ساعة'
+      if (value === 2) return 'ساعتين'
+      if (value >= 3 && value <= 10) return 'ساعات'
+      return 'ساعة'
+    }
+    if (unit === 'دقيقة') {
+      if (value === 1) return 'دقيقة'
+      if (value === 2) return 'دقيقتين'
+      if (value >= 3 && value <= 10) return 'دقائق'
+      return 'دقيقة'
+    }
+    if (unit === 'ثانية') {
+      if (value === 1) return 'ثانية'
+      if (value === 2) return 'ثانيتين'
+      if (value >= 3 && value <= 10) return 'ثواني'
+      return 'ثانية'
+    }
+    return unit
+  }
+
   const timeUnits = [
-    { label: 'Years', value: timeElapsed.years },
-    { label: 'Months', value: timeElapsed.months },
-    { label: 'Days', value: timeElapsed.days },
-    { label: 'Hours', value: timeElapsed.hours },
-    { label: 'Minutes', value: timeElapsed.minutes },
-    { label: 'Seconds', value: timeElapsed.seconds },
+    { label: getArabicPlural(timeElapsed.years, 'سنة'), value: timeElapsed.years },
+    { label: getArabicPlural(timeElapsed.months, 'شهر'), value: timeElapsed.months },
+    { label: getArabicPlural(timeElapsed.days, 'يوم'), value: timeElapsed.days },
+    { label: getArabicPlural(timeElapsed.hours, 'ساعة'), value: timeElapsed.hours },
+    { label: getArabicPlural(timeElapsed.minutes, 'دقيقة'), value: timeElapsed.minutes },
+    { label: getArabicPlural(timeElapsed.seconds, 'ثانية'), value: timeElapsed.seconds },
   ]
 
   return (
-    <section id="home" className="min-h-screen flex flex-col items-center justify-center px-4 py-20">
-      <div className="text-center mb-12 fade-in">
-        <h1 className="font-serif text-4xl md:text-6xl text-foreground mb-4 text-balance">
-          {coupleName1} & {coupleName2}
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          Together since {new Date(anniversaryDate).toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}
-        </p>
-      </div>
+    <div className="relative">
+      {/* Background glow */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent rounded-3xl" />
+      
+      <div className="glass rounded-3xl p-8 md:p-14 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-6 left-6 text-primary/20">
+          <Sparkles className="w-8 h-8" />
+        </div>
+        <div className="absolute bottom-6 right-6 text-primary/20">
+          <Heart className="w-8 h-8" />
+        </div>
 
-      <div className="glass rounded-3xl p-6 md:p-10 w-full max-w-4xl fade-in" style={{ animationDelay: '0.2s' }}>
-        <p className="text-center text-primary mb-6 text-lg font-medium">Time Together</p>
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="h-px w-16 bg-gradient-to-r from-transparent to-border" />
+            <Heart className="w-5 h-5 text-primary fill-primary/30" />
+            <div className="h-px w-16 bg-gradient-to-l from-transparent to-border" />
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl font-serif gradient-text mb-4 text-balance">
+            {coupleName1} و {coupleName2}
+          </h2>
+          
+          <p className="text-muted-foreground text-sm">
+            مع بعض من {new Date(anniversaryDate).toLocaleDateString('ar-EG', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        </div>
+
+        {/* Time counter label */}
+        <div className="text-center mb-8">
+          <span className="inline-flex items-center gap-2 text-primary/80 text-sm bg-primary/5 px-4 py-2 rounded-full border border-primary/10">
+            <Sparkles className="w-4 h-4" />
+            <span>وقتنا مع بعض</span>
+          </span>
+        </div>
+
+        {/* Time grid */}
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
           {timeUnits.map((unit, index) => (
             <div 
-              key={unit.label} 
-              className="text-center fade-in"
-              style={{ animationDelay: `${0.3 + index * 0.1}s` }}
+              key={index} 
+              className="group relative bg-muted/30 hover:bg-muted/50 rounded-2xl p-4 md:p-6 text-center transition-all duration-300 card-hover border border-transparent hover:border-primary/10"
             >
-              <div className="glass rounded-2xl p-4 md:p-6 mb-2">
-                <span className="text-3xl md:text-5xl font-serif text-foreground">
+              {/* Number */}
+              <div className="relative mb-2">
+                <span className="text-3xl md:text-5xl font-light text-foreground tabular-nums">
                   {String(unit.value).padStart(2, '0')}
                 </span>
               </div>
-              <span className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider">
+              
+              {/* Label */}
+              <p className="text-xs md:text-sm text-muted-foreground">
                 {unit.label}
-              </span>
+              </p>
+              
+              {/* Hover glow */}
+              <div className="absolute inset-0 rounded-2xl bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   )
 }

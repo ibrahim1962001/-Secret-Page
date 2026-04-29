@@ -9,39 +9,52 @@ interface Heart {
   duration: number
   delay: number
   opacity: number
+  symbol: string
 }
 
-export function FloatingHearts({ count = 15, subtle = false }: { count?: number; subtle?: boolean }) {
+const HEART_SYMBOLS = ['♥', '♡', '❤', '💗', '✦', '✧']
+
+export function FloatingHearts({ 
+  count = 12, 
+  subtle = false,
+  colorful = false 
+}: { 
+  count?: number
+  subtle?: boolean
+  colorful?: boolean 
+}) {
   const [hearts, setHearts] = useState<Heart[]>([])
 
   useEffect(() => {
     const newHearts: Heart[] = Array.from({ length: count }, (_, i) => ({
       id: i,
       left: Math.random() * 100,
-      size: subtle ? Math.random() * 12 + 8 : Math.random() * 20 + 10,
-      duration: Math.random() * 10 + 15,
+      size: subtle ? Math.random() * 10 + 6 : Math.random() * 18 + 10,
+      duration: Math.random() * 12 + 15,
       delay: Math.random() * 10,
-      opacity: subtle ? Math.random() * 0.2 + 0.1 : Math.random() * 0.4 + 0.2,
+      opacity: subtle ? Math.random() * 0.15 + 0.05 : Math.random() * 0.3 + 0.1,
+      symbol: colorful 
+        ? HEART_SYMBOLS[Math.floor(Math.random() * HEART_SYMBOLS.length)] 
+        : '♥',
     }))
     setHearts(newHearts)
-  }, [count, subtle])
+  }, [count, subtle, colorful])
 
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
       {hearts.map((heart) => (
         <div
           key={heart.id}
-          className="absolute floating-heart text-primary"
+          className="floating-heart absolute bottom-0 text-primary"
           style={{
             left: `${heart.left}%`,
-            bottom: '-20px',
             fontSize: `${heart.size}px`,
             animationDuration: `${heart.duration}s`,
             animationDelay: `${heart.delay}s`,
             opacity: heart.opacity,
           }}
         >
-          ♥
+          {heart.symbol}
         </div>
       ))}
     </div>
